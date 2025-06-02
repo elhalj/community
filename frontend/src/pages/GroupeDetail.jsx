@@ -11,6 +11,7 @@ const GroupeDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { getGroupeById, deleteGroupe } = useGroupes();
+  const deleteGroupeMutation = deleteGroupe();
   const { getTransactionsByGroupe } = useTransactions();
   const isAdmin = user?.role === 'admin';
   
@@ -34,7 +35,7 @@ const GroupeDetail = () => {
   // Gérer la suppression d'un groupe
   const handleDelete = async () => {
     try {
-      await deleteGroupe.mutateAsync(id);
+      await deleteGroupeMutation.mutateAsync(id);
       toast.success('Groupe supprimé avec succès');
       navigate('/groupes');
     } catch (error) {

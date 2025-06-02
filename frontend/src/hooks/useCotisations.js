@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import cotisationService from '../services/cotisationService';
-import useCotisationStore from '../store/cotisationStore';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import cotisationService from "../services/cotisationService";
+import useCotisationStore from "../store/cotisationStore";
 
 // Hook personnalisé pour gérer les cotisations avec React Query
 export const useCotisations = () => {
@@ -8,29 +8,30 @@ export const useCotisations = () => {
   const { setLoading, setError } = useCotisationStore();
 
   // Récupérer toutes les cotisations
-  const getAllCotisations = () => {
-    return useQuery({
-      queryKey: ['cotisations'],
-      queryFn: async () => {
-        setLoading(true);
-        try {
-          const data = await cotisationService.getAllCotisations();
-          setLoading(false);
-          return data.data;
-        } catch (error) {
-          setError(error.response?.data?.message || 'Erreur lors de la récupération des cotisations');
-          setLoading(false);
-          throw error;
-        }
-      },
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    });
-  };
+  const allCotisationsQuery = useQuery({
+    queryKey: ["cotisations"],
+    queryFn: async () => {
+      setLoading(true);
+      try {
+        const data = await cotisationService.getAllCotisations();
+        setLoading(false);
+        return data.data;
+      } catch (error) {
+        setError(
+          error.response?.data?.message ||
+            "Erreur lors de la récupération des cotisations"
+        );
+        setLoading(false);
+        throw error;
+      }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
-  // Récupérer les cotisations d'un membre
-  const getCotisationsByMembre = (membreId) => {
+  // Fonction pour récupérer les cotisations d'un membre
+  const useCotisationsByMembre = (membreId) => {
     return useQuery({
-      queryKey: ['cotisations', 'membre', membreId],
+      queryKey: ["cotisations", "membre", membreId],
       queryFn: async () => {
         setLoading(true);
         try {
@@ -38,7 +39,10 @@ export const useCotisations = () => {
           setLoading(false);
           return data.data;
         } catch (error) {
-          setError(error.response?.data?.message || 'Erreur lors de la récupération des cotisations');
+          setError(
+            error.response?.data?.message ||
+              "Erreur lors de la récupération des cotisations"
+          );
           setLoading(false);
           throw error;
         }
@@ -48,18 +52,24 @@ export const useCotisations = () => {
     });
   };
 
-  // Récupérer les cotisations par période
-  const getCotisationsByPeriode = (mois, annee) => {
+  // Fonction pour récupérer les cotisations par période
+  const useCotisationsByPeriode = (mois, annee) => {
     return useQuery({
-      queryKey: ['cotisations', 'periode', mois, annee],
+      queryKey: ["cotisations", "periode", mois, annee],
       queryFn: async () => {
         setLoading(true);
         try {
-          const data = await cotisationService.getCotisationsByPeriode(mois, annee);
+          const data = await cotisationService.getCotisationsByPeriode(
+            mois,
+            annee
+          );
           setLoading(false);
           return data.data;
         } catch (error) {
-          setError(error.response?.data?.message || 'Erreur lors de la récupération des cotisations');
+          setError(
+            error.response?.data?.message ||
+              "Erreur lors de la récupération des cotisations"
+          );
           setLoading(false);
           throw error;
         }
@@ -69,10 +79,10 @@ export const useCotisations = () => {
     });
   };
 
-  // Récupérer une cotisation spécifique
-  const getCotisationById = (id) => {
+  // Fonction pour récupérer une cotisation spécifique
+  const useCotisationById = (id) => {
     return useQuery({
-      queryKey: ['cotisations', id],
+      queryKey: ["cotisations", id],
       queryFn: async () => {
         setLoading(true);
         try {
@@ -80,7 +90,10 @@ export const useCotisations = () => {
           setLoading(false);
           return data.data;
         } catch (error) {
-          setError(error.response?.data?.message || 'Erreur lors de la récupération de la cotisation');
+          setError(
+            error.response?.data?.message ||
+              "Erreur lors de la récupération de la cotisation"
+          );
           setLoading(false);
           throw error;
         }
@@ -91,54 +104,55 @@ export const useCotisations = () => {
   };
 
   // Créer une cotisation
-  const createCotisation = () => {
-    return useMutation({
-      mutationFn: (cotisationData) => cotisationService.createCotisation(cotisationData),
-      onSuccess: () => {
-        // Invalider et refetch les queries après création
-        queryClient.invalidateQueries({ queryKey: ['cotisations'] });
-      },
-    });
-  };
+  const createCotisation = useMutation({
+    mutationFn: (cotisationData) =>
+      cotisationService.createCotisation(cotisationData),
+    onSuccess: () => {
+      // Invalider et refetch les queries après création
+      queryClient.invalidateQueries({ queryKey: ["cotisations"] });
+    },
+  });
 
   // Mettre à jour une cotisation
-  const updateCotisation = () => {
-    return useMutation({
-      mutationFn: ({ id, ...cotisationData }) => cotisationService.updateCotisation(id, cotisationData),
-      onSuccess: (_, variables) => {
-        // Invalider et refetch les queries spécifiques après mise à jour
-        queryClient.invalidateQueries({ queryKey: ['cotisations', variables.id] });
-        queryClient.invalidateQueries({ queryKey: ['cotisations'] });
-      },
-    });
-  };
-  
+  const updateCotisation = useMutation({
+    mutationFn: ({ id, ...cotisationData }) =>
+      cotisationService.updateCotisation(id, cotisationData),
+    onSuccess: (_, variables) => {
+      // Invalider et refetch les queries spécifiques après mise à jour
+      queryClient.invalidateQueries({
+        queryKey: ["cotisations", variables.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["cotisations"] });
+    },
+  });
+
   // Mettre à jour le statut d'une cotisation
   const updateCotisationStatus = useMutation({
-    mutationFn: ({ id, statut }) => cotisationService.updateCotisationStatus(id, statut),
+    mutationFn: ({ id, statut }) =>
+      cotisationService.updateCotisationStatus(id, statut),
     onSuccess: (_, variables) => {
       // Invalider et refetch les queries spécifiques après mise à jour du statut
-      queryClient.invalidateQueries({ queryKey: ['cotisations', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['cotisations'] });
+      queryClient.invalidateQueries({
+        queryKey: ["cotisations", variables.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["cotisations"] });
     },
   });
 
   // Supprimer une cotisation
-  const deleteCotisation = () => {
-    return useMutation({
-      mutationFn: (id) => cotisationService.deleteCotisation(id),
-      onSuccess: () => {
-        // Invalider et refetch les queries après suppression
-        queryClient.invalidateQueries({ queryKey: ['cotisations'] });
-      },
-    });
-  };
+  const deleteCotisation = useMutation({
+    mutationFn: (id) => cotisationService.deleteCotisation(id),
+    onSuccess: () => {
+      // Invalider et refetch les queries après suppression
+      queryClient.invalidateQueries({ queryKey: ["cotisations"] });
+    },
+  });
 
   return {
-    getAllCotisations,
-    getCotisationsByMembre,
-    getCotisationsByPeriode,
-    getCotisationById,
+    allCotisationsQuery,
+    useCotisationsByMembre,
+    useCotisationsByPeriode,
+    useCotisationById,
     createCotisation,
     updateCotisation,
     updateCotisationStatus,

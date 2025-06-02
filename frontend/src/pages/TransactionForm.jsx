@@ -11,6 +11,8 @@ const TransactionForm = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { getTransactionById, createTransaction, updateTransaction } = useTransactions();
+  const createTransactionMutation = createTransaction;
+  const updateTransactionMutation = updateTransaction;
   const { getGroupeById } = useGroupes();
   const isEditing = !!transactionId;
 
@@ -109,13 +111,13 @@ const TransactionForm = () => {
     
     try {
       if (isEditing) {
-        await updateTransaction.mutateAsync({
+        await updateTransactionMutation.mutateAsync({
           id: transactionId,
           transactionData: formData
         });
         toast.success('Transaction mise à jour avec succès');
       } else {
-        await createTransaction.mutateAsync(formData);
+        await createTransactionMutation.mutateAsync(formData);
         toast.success('Transaction créée avec succès');
       }
       

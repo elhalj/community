@@ -10,6 +10,8 @@ const GroupeMembres = () => {
   const { id } = useParams();
   const { user } = useAuthStore();
   const { getGroupeById, addMembreToGroupe, removeMembreFromGroupe } = useGroupes();
+  const addMembreMutation = addMembreToGroupe();
+  const removeMembreMutation = removeMembreFromGroupe();
   const isAdmin = user?.role === 'admin';
   
   // États
@@ -67,7 +69,7 @@ const GroupeMembres = () => {
     setIsProcessing(true);
     
     try {
-      await addMembreToGroupe.mutateAsync({ groupeId: id, userId });
+      await addMembreMutation.mutateAsync({ groupeId: id, userId });
       toast.success('Membre ajouté avec succès');
       setSearchResults([]);
       setSearchTerm('');
@@ -85,7 +87,7 @@ const GroupeMembres = () => {
     setIsProcessing(true);
     
     try {
-      await removeMembreFromGroupe.mutateAsync({ groupeId: id, userId });
+      await removeMembreMutation.mutateAsync({ groupeId: id, userId });
       toast.success('Membre retiré avec succès');
     } catch (error) {
       toast.error(error.response?.data?.error || 'Erreur lors du retrait du membre');

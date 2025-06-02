@@ -11,6 +11,7 @@ const GroupeTransactions = () => {
   const { user } = useAuthStore();
   const { getGroupeById } = useGroupes();
   const { getTransactionsByGroupe, deleteTransaction } = useTransactions();
+  const deleteTransactionMutation = deleteTransaction;
   const isAdmin = user?.role === 'admin';
   
   // États pour le filtrage
@@ -109,7 +110,7 @@ const GroupeTransactions = () => {
   // Gérer la suppression d'une transaction
   const handleDelete = async (id) => {
     try {
-      await deleteTransaction.mutateAsync(id);
+      await deleteTransactionMutation.mutateAsync(id);
       toast.success('Transaction supprimée avec succès');
       setDeleteId(null);
     } catch (error) {

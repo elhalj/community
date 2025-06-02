@@ -10,6 +10,8 @@ const GroupeForm = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { getGroupeById, createGroupe, updateGroupe } = useGroupes();
+  const createGroupeMutation = createGroupe();
+  const updateGroupeMutation = updateGroupe();
   const isEditing = !!id;
 
   // État du formulaire
@@ -92,13 +94,13 @@ const GroupeForm = () => {
     
     try {
       if (isEditing) {
-        await updateGroupe.mutateAsync({
+        await updateGroupeMutation.mutateAsync({
           id,
           groupeData: formData
         });
         toast.success('Groupe mis à jour avec succès');
       } else {
-        const result = await createGroupe.mutateAsync(formData);
+        const result = await createGroupeMutation.mutateAsync(formData);
         toast.success('Groupe créé avec succès');
         // Rediriger vers la page de détail du nouveau groupe
         navigate(`/groupes/${result.data._id}`);

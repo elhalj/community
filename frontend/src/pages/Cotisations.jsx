@@ -5,7 +5,7 @@ import useAuthStore from '../store/authStore';
 
 const Cotisations = () => {
   const { user } = useAuthStore();
-  const { getAllCotisations, getCotisationsByMembre } = useCotisations();
+  const { allCotisationsQuery, useCotisationsByMembre } = useCotisations();
   const [filters, setFilters] = useState({
     mois: '',
     annee: new Date().getFullYear(),
@@ -13,9 +13,11 @@ const Cotisations = () => {
   });
 
   // Utiliser la requête appropriée en fonction du rôle de l'utilisateur
+  const membreQuery = useCotisationsByMembre(user?.role !== 'admin' ? user?._id : null);
+  
   const cotisationsQuery = user?.role === 'admin' 
-    ? getAllCotisations() 
-    : getCotisationsByMembre(user?._id);
+    ? allCotisationsQuery 
+    : membreQuery;
 
   // Filtrer les cotisations
   const filteredCotisations = cotisationsQuery.data?.filter((cotisation) => {

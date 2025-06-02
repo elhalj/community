@@ -8,12 +8,14 @@ const CotisationDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { getCotisationById, updateCotisationStatus, deleteCotisation } = useCotisations();
+  const { useCotisationById, updateCotisationStatus, deleteCotisation } = useCotisations();
+  const updateStatusMutation = updateCotisationStatus();
+  const deleteCotisationMutation = deleteCotisation();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   // Récupérer les détails de la cotisation
-  const cotisationQuery = getCotisationById(id);
+  const cotisationQuery = useCotisationById(id);
 
   // Fonction pour formater la date
   const formatDate = (dateString) => {
@@ -31,7 +33,7 @@ const CotisationDetail = () => {
   const handleStatusUpdate = async (newStatus) => {
     try {
       setIsUpdatingStatus(true);
-      await updateCotisationStatus.mutateAsync({
+      await updateStatusMutation.mutateAsync({
         id,
         statut: newStatus,
       });
@@ -48,7 +50,7 @@ const CotisationDetail = () => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette cotisation?')) {
       try {
         setIsDeleting(true);
-        await deleteCotisation.mutateAsync(id);
+        await deleteCotisationMutation.mutateAsync(id);
         toast.success('Cotisation supprimée avec succès');
         navigate('/cotisations');
       } catch (error) {

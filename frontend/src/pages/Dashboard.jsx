@@ -5,7 +5,7 @@ import { useCotisations } from '../hooks/useCotisations';
 
 const Dashboard = () => {
   const { user } = useAuthStore();
-  const { getAllCotisations, getCotisationsByMembre } = useCotisations();
+  const { allCotisationsQuery, useCotisationsByMembre } = useCotisations();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [stats, setStats] = useState({
     totalCotisations: 0,
@@ -15,9 +15,8 @@ const Dashboard = () => {
   });
 
   // Utiliser la requête appropriée en fonction du rôle de l'utilisateur
-  const cotisationsQuery = user?.role === 'admin' 
-    ? getAllCotisations() 
-    : getCotisationsByMembre(user?._id);
+  const membreQuery = useCotisationsByMembre(user?.role !== 'admin' ? user?._id : null);
+  const cotisationsQuery = user?.role === 'admin' ? allCotisationsQuery : membreQuery;
 
   // Calculer les statistiques lorsque les données changent
   useEffect(() => {

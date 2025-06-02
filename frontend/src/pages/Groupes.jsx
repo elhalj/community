@@ -11,12 +11,15 @@ const Groupes = () => {
   const isAdmin = user?.role === 'admin';
   
   // Récupérer les groupes selon le rôle de l'utilisateur
+  const adminQuery = getAllGroupes;
+  const membreQuery = getGroupesByMembre(user?._id);
+  
   const { 
     data: groupesData, 
     isLoading, 
     isError, 
     error 
-  } = isAdmin ? getAllGroupes : getGroupesByMembre(user?._id);
+  } = isAdmin ? adminQuery : membreQuery;
 
   // État pour la confirmation de suppression
   const [deleteId, setDeleteId] = useState(null);

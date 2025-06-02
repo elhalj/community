@@ -32,11 +32,13 @@ const CotisationForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { 
-    createCotisation, 
-    updateCotisation, 
-    getCotisationById 
+  const {
+    createCotisation,
+    updateCotisation,
+    useCotisationById
   } = useCotisations();
+  const createCotisationMutation = createCotisation();
+  const updateCotisationMutation = updateCotisation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditMode = Boolean(id);
 
@@ -61,26 +63,26 @@ const CotisationForm = () => {
     if (isEditMode) {
       const fetchCotisation = async () => {
         try {
-          const cotisationQuery = getCotisationById(id);
+          const cotisationQuery = useCotisationById(id);
           await cotisationQuery.refetch();
-          
+
           if (cotisationQuery.data) {
             const cotisation = cotisationQuery.data;
-            
+
             // Vérifier que l'utilisateur est autorisé à modifier cette cotisation
             if (user?.role !== 'admin' && cotisation.membre !== user?._id) {
               toast.error('Vous n\'êtes pas autorisé à modifier cette cotisation');
               navigate('/cotisations');
               return;
             }
-            
+
             // Vérifier que la cotisation est en attente
             if (cotisation.statut !== 'En attente') {
               toast.error('Seules les cotisations en attente peuvent être modifiées');
               navigate(`/cotisations/${id}`);
               return;
             }
-            
+
             // Remplir le formulaire avec les données existantes
             reset({
               mois: cotisation.mois,
@@ -96,29 +98,29 @@ const CotisationForm = () => {
           navigate('/cotisations');
         }
       };
-      
+
       fetchCotisation();
     }
-  }, [isEditMode, id, getCotisationById, reset, navigate, user]);
+  }, [isEditMode, id, useCotisationById, reset, navigate, user]);
 
   // Gérer la soumission du formulaire
   const onSubmit = async (data) => {
     try {
       setIsSubmitting(true);
-      
+
       if (isEditMode) {
         // Mise à jour d'une cotisation existante
-        await updateCotisation.mutateAsync({
+        await updateCotisationMutation.mutateAsync({
           id,
           ...data,
         });
         toast.success('Cotisation mise à jour avec succès');
       } else {
         // Création d'une nouvelle cotisation
-        await createCotisation.mutateAsync(data);
+        await createCotisationMutation.mutateAsync(data);
         toast.success('Cotisation enregistrée avec succès');
       }
-      
+
       // Rediriger vers la liste des cotisations
       navigate('/cotisations');
     } catch (error) {
@@ -146,7 +148,7 @@ const CotisationForm = () => {
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
         {isEditMode ? 'Modifier la cotisation' : 'Nouvelle cotisation'}
       </h1>
-      
+
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -171,7 +173,7 @@ const CotisationForm = () => {
                 <p className="text-red-500 text-sm mt-1">{errors.mois.message}</p>
               )}
             </div>
-            
+
             {/* Année */}
             <div>
               <label htmlFor="annee" className="block text-sm font-medium text-gray-700 mb-1">
@@ -193,7 +195,7 @@ const CotisationForm = () => {
               )}
             </div>
           </div>
-          
+
           {/* Montant */}
           <div>
             <label htmlFor="montant" className="block text-sm font-medium text-gray-700 mb-1">
@@ -209,7 +211,7 @@ const CotisationForm = () => {
               <p className="text-red-500 text-sm mt-1">{errors.montant.message}</p>
             )}
           </div>
-          
+
           {/* Méthode de paiement */}
           <div>
             <label htmlFor="methodePaiement" className="block text-sm font-medium text-gray-700 mb-1">
@@ -230,7 +232,7 @@ const CotisationForm = () => {
               <p className="text-red-500 text-sm mt-1">{errors.methodePaiement.message}</p>
             )}
           </div>
-          
+
           {/* Référence de paiement (conditionnelle) */}
           {methodePaiement !== 'Espèces' && (
             <div>
@@ -253,7 +255,7 @@ const CotisationForm = () => {
               )}
             </div>
           )}
-          
+
           {/* Notes */}
           <div>
             <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
@@ -270,7 +272,7 @@ const CotisationForm = () => {
               <p className="text-red-500 text-sm mt-1">{errors.notes.message}</p>
             )}
           </div>
-          
+
           {/* Boutons */}
           <div className="flex justify-end space-x-3 pt-4">
             <button
@@ -288,8 +290,8 @@ const CotisationForm = () => {
               {isSubmitting
                 ? 'Enregistrement...'
                 : isEditMode
-                ? 'Mettre à jour'
-                : 'Enregistrer'}
+                  ? 'Mettre à jour'
+                  : 'Enregistrer'}
             </button>
           </div>
         </form>

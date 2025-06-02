@@ -1,11 +1,11 @@
-import axios from 'axios';
-import useAuthStore from '../store/authStore';
+import axios from "axios";
+import useAuthStore from "../store/authStore";
 
 // Créer une instance axios avec une URL de base
 const api = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: "http://localhost:5000/api",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -32,7 +32,7 @@ api.interceptors.response.use(
     // Gérer les erreurs d'authentification (401)
     if (error.response && error.response.status === 401) {
       useAuthStore.getState().logout();
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
