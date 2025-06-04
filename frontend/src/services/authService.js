@@ -16,31 +16,31 @@ const authService = {
 
   // Récupération du profil de l'utilisateur connecté
   getProfile: async () => {
-    const response = await api.get("/api/auth/me");
+    const response = await api.get("/auth/me");
     return response.data;
   },
 
   // Mise à jour du profil de l'utilisateur
   updateProfile: async (userData) => {
-    const response = await api.put("/api/auth/updatedetails", userData);
+    const response = await api.put("/auth/updatedetails", userData);
     return response.data;
   },
 
   // Mise à jour du mot de passe
   updatePassword: async (passwordData) => {
-    const response = await api.put("/api/auth/updatepassword", passwordData);
+    const response = await api.put("/auth/updatepassword", passwordData);
     return response.data;
   },
 
   // Demande de réinitialisation du mot de passe
   forgotPassword: async (email) => {
-    const response = await api.post("/api/auth/forgotpassword", { email });
+    const response = await api.post("/auth/forgotpassword", { email });
     return response.data;
   },
 
   // Réinitialisation du mot de passe avec un token
   resetPassword: async (token, password) => {
-    const response = await api.put(`/api/auth/resetpassword/${token}`, {
+    const response = await api.put(`/auth/resetpassword/${token}`, {
       password,
     });
     return response.data;

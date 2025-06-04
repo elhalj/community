@@ -20,11 +20,12 @@ const schema = yup.object({
     .required('Le montant est requis')
     .min(1, 'Le montant doit être supérieur à 0'),
   methodePaiement: yup.string().required('La méthode de paiement est requise'),
-  referencePaiement: yup.string().when('methodePaiement', {
-    is: (val) => val !== 'Espèces',
-    then: yup.string().required('La référence de paiement est requise pour ce mode de paiement'),
-    otherwise: yup.string(),
+  referencePaiement: yup.string().when('methodePaiement', (methodePaiement, schema) => {
+    return methodePaiement !== 'Espèces'
+      ? schema.required('La référence de paiement est requise pour ce mode de paiement')
+      : schema;
   }),
+
   notes: yup.string(),
 }).required();
 
@@ -35,12 +36,13 @@ const CotisationForm = () => {
   const {
     createCotisation,
     updateCotisation,
-    useCotisationById
+    useCotisationById // Correction : Utilisation cohérente du hook
   } = useCotisations();
-  const createCotisationMutation = createCotisation();
-  const updateCotisationMutation = updateCotisation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditMode = Boolean(id);
+
+  // Utilisation correcte du hook useCotisationById
+  const cotisationQuery = useCotisationById(id); // <-- Correction principale ici
 
   // Utiliser react-hook-form avec validation yup
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
@@ -48,7 +50,7 @@ const CotisationForm = () => {
     defaultValues: {
       mois: '',
       annee: new Date().getFullYear(),
-      montant: 5000, // Montant par défaut
+      montant: 5000,
       methodePaiement: 'Mobile Money',
       referencePaiement: '',
       notes: '',
@@ -58,50 +60,42 @@ const CotisationForm = () => {
   // Surveiller la méthode de paiement pour la validation conditionnelle
   const methodePaiement = watch('methodePaiement');
 
-  // Récupérer les détails de la cotisation en mode édition
+  // Récupération des détails de la cotisation en mode édition
   useEffect(() => {
-    if (isEditMode) {
-      const fetchCotisation = async () => {
-        try {
-          const cotisationQuery = useCotisationById(id);
-          await cotisationQuery.refetch();
+    if (isEditMode && cotisationQuery.data) {
+      const cotisation = cotisationQuery.data;
 
-          if (cotisationQuery.data) {
-            const cotisation = cotisationQuery.data;
+      // Vérifier que l'utilisateur est autorisé
+      if (user?.role !== 'admin' && cotisation.membre !== user?._id) {
+        toast.error('Vous n\'êtes pas autorisé à modifier cette cotisation');
+        navigate('/cotisations');
+        return;
+      }
 
-            // Vérifier que l'utilisateur est autorisé à modifier cette cotisation
-            if (user?.role !== 'admin' && cotisation.membre !== user?._id) {
-              toast.error('Vous n\'êtes pas autorisé à modifier cette cotisation');
-              navigate('/cotisations');
-              return;
-            }
+      // Vérifier le statut
+      if (cotisation.statut !== 'En attente') {
+        toast.error('Seules les cotisations en attente peuvent être modifiées');
+        navigate(`/cotisations/${id}`);
+        return;
+      }
 
-            // Vérifier que la cotisation est en attente
-            if (cotisation.statut !== 'En attente') {
-              toast.error('Seules les cotisations en attente peuvent être modifiées');
-              navigate(`/cotisations/${id}`);
-              return;
-            }
-
-            // Remplir le formulaire avec les données existantes
-            reset({
-              mois: cotisation.mois,
-              annee: cotisation.annee,
-              montant: cotisation.montant,
-              methodePaiement: cotisation.methodePaiement,
-              referencePaiement: cotisation.referencePaiement || '',
-              notes: cotisation.notes || '',
-            });
-          }
-        } catch (error) {
-          toast.error('Erreur lors de la récupération des détails de la cotisation');
-          navigate('/cotisations');
-        }
-      };
-
-      fetchCotisation();
+      // Remplir le formulaire
+      reset({
+        mois: cotisation.mois,
+        annee: cotisation.annee,
+        montant: cotisation.montant,
+        methodePaiement: cotisation.methodePaiement,
+        referencePaiement: cotisation.referencePaiement || '',
+        notes: cotisation.notes || '',
+      });
     }
-  }, [isEditMode, id, useCotisationById, reset, navigate, user]);
+
+    // Gestion des erreurs de récupération
+    if (isEditMode && cotisationQuery.isError) {
+      toast.error('Erreur lors de la récupération des détails de la cotisation');
+      navigate('/cotisations');
+    }
+  }, [isEditMode, id, cotisationQuery.data, cotisationQuery.isError, reset, navigate, user]);
 
   // Gérer la soumission du formulaire
   const onSubmit = async (data) => {
@@ -109,19 +103,16 @@ const CotisationForm = () => {
       setIsSubmitting(true);
 
       if (isEditMode) {
-        // Mise à jour d'une cotisation existante
-        await updateCotisationMutation.mutateAsync({
+        await updateCotisation.mutateAsync({
           id,
           ...data,
         });
         toast.success('Cotisation mise à jour avec succès');
       } else {
-        // Création d'une nouvelle cotisation
-        await createCotisationMutation.mutateAsync(data);
+        await createCotisation.mutateAsync(data);
         toast.success('Cotisation enregistrée avec succès');
       }
 
-      // Rediriger vers la liste des cotisations
       navigate('/cotisations');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Erreur lors de l\'enregistrement de la cotisation');
@@ -136,7 +127,7 @@ const CotisationForm = () => {
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
   ];
 
-  // Générer les années (5 ans en arrière et 5 ans en avant)
+  // Générer les années
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
 

@@ -7,6 +7,7 @@ const rateLimit = require("express-rate-limit");
 const { createClient } = require("redis");
 const connectDB = require("./src/config/db");
 const routerUser = require("./src/routes/auth");
+const routerCotisation = require("./src/routes/cotisations");
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -70,6 +71,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", routerUser);
+app.use("/api/cotisation", routerCotisation);
 
 // Définir le port
 const PORT = process.env.PORT || 5000;

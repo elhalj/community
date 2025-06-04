@@ -21,7 +21,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="text-xl font-bold">SeguiKro</Link>
-          
+
           {/* Menu pour mobile */}
           <div className="md:hidden">
             <button
@@ -53,7 +53,7 @@ const Navbar = () => {
               </svg>
             </button>
           </div>
-          
+
           {/* Menu pour desktop */}
           <div className="hidden md:flex items-center space-x-4">
             <Link to="/" className="hover:text-blue-200 transition-colors">Accueil</Link>
@@ -67,7 +67,7 @@ const Navbar = () => {
                 )}
                 <div className="relative group">
                   <button className="flex items-center hover:text-blue-200 transition-colors">
-                    {user?.nom || 'Mon compte'}
+                    {user?.user.nom || 'Mon compte'}
                     <svg
                       className="w-4 h-4 ml-1"
                       fill="none"
@@ -109,7 +109,7 @@ const Navbar = () => {
             )}
           </div>
         </div>
-        
+
         {/* Menu mobile */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-blue-500">

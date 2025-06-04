@@ -1,9 +1,9 @@
-const User = require('../models/User');
-const asyncHandler = require('../middleware/async');
-const ErrorResponse = require('../utils/errorResponse');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const { validationResult } = require('express-validator');
+const User = require("../models/User");
+const asyncHandler = require("../middleware/async");
+const ErrorResponse = require("../utils/errorResponse");
+const bcrypt = require("bcryptjs");
+const { validationResult } = require("express-validator");
+const genererToken = require("../middleware/generatedToken");
 
 // @desc    Inscrire un utilisateur
 // @route   POST /api/auth/register
@@ -11,7 +11,7 @@ const { validationResult } = require('express-validator');
 exports.register = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return next(new ErrorResponse('Erreur de validation', 400, errors.array()));
+    return next(new ErrorResponse("Erreur de validation", 400, errors.array()));
   }
 
   const { nom, prenom, email, password, telephone, adresse } = req.body;
@@ -19,7 +19,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   // Vérifier si l'utilisateur existe déjà
   let user = await User.findOne({ email });
   if (user) {
-    return next(new ErrorResponse('Cet email est déjà utilisé', 400));
+    return next(new ErrorResponse("Cet email est déjà utilisé", 400));
   }
 
   // Créer un nouvel utilisateur
@@ -30,10 +30,11 @@ exports.register = asyncHandler(async (req, res, next) => {
     password,
     telephone,
     adresse,
-    role: 'membre' // Par défaut, tous les nouveaux utilisateurs sont des membres
+    role: "membre", // Par défaut, tous les nouveaux utilisateurs sont des membres
   });
 
-  sendTokenResponse(user, 201, res);
+  genererToken(user, 201);
+  res.status(201).json(user);
 });
 
 // @desc    Connecter un utilisateur
@@ -42,43 +43,46 @@ exports.register = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return next(new ErrorResponse('Erreur de validation', 400, errors.array()));
+    return next(new ErrorResponse("Erreur de validation", 400, errors.array()));
   }
 
   const { email, password } = req.body;
 
   // Vérifier si l'email et le mot de passe sont fournis
   if (!email || !password) {
-    return next(new ErrorResponse('Veuillez fournir un email et un mot de passe', 400));
+    return next(
+      new ErrorResponse("Veuillez fournir un email et un mot de passe", 400)
+    );
   }
 
   // Vérifier si l'utilisateur existe
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select("+password");
   if (!user) {
-    return next(new ErrorResponse('Identifiants invalides', 401));
+    return next(new ErrorResponse("Identifiants invalides", 401));
   }
 
   // Vérifier si le mot de passe correspond
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    return next(new ErrorResponse('Identifiants invalides', 401));
+    return next(new ErrorResponse("Identifiants invalides", 401));
   }
 
-  sendTokenResponse(user, 200, res);
+  genererToken(user, 200);
+  res.status(200).json(user);
 });
 
 // @desc    Déconnecter un utilisateur / effacer le cookie
 // @route   GET /api/auth/logout
 // @access  Private
 exports.logout = asyncHandler(async (req, res, next) => {
-  res.cookie('token', 'none', {
+  res.cookie("token", "none", {
     expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true
+    httpOnly: true,
   });
 
   res.status(200).json({
     success: true,
-    data: {}
+    data: {},
   });
 });
 
@@ -90,7 +94,7 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: user
+    data: user,
   });
 });
 
@@ -100,24 +104,24 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 exports.updateDetails = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return next(new ErrorResponse('Erreur de validation', 400, errors.array()));
+    return next(new ErrorResponse("Erreur de validation", 400, errors.array()));
   }
 
   const fieldsToUpdate = {
     nom: req.body.nom,
     prenom: req.body.prenom,
     telephone: req.body.telephone,
-    adresse: req.body.adresse
+    adresse: req.body.adresse,
   };
 
   const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
     new: true,
-    runValidators: true
+    runValidators: true,
   });
 
   res.status(200).json({
     success: true,
-    data: user
+    data: user,
   });
 });
 
@@ -127,20 +131,20 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
 exports.updatePassword = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return next(new ErrorResponse('Erreur de validation', 400, errors.array()));
+    return next(new ErrorResponse("Erreur de validation", 400, errors.array()));
   }
 
-  const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findById(req.user.id).select("+password");
 
   // Vérifier le mot de passe actuel
   if (!(await user.matchPassword(req.body.currentPassword))) {
-    return next(new ErrorResponse('Mot de passe actuel incorrect', 401));
+    return next(new ErrorResponse("Mot de passe actuel incorrect", 401));
   }
 
   user.password = req.body.newPassword;
   await user.save();
 
-  sendTokenResponse(user, 200, res);
+  genererToken(user, 200, res);
 });
 
 // @desc    Demander la réinitialisation du mot de passe
@@ -150,7 +154,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
 
   if (!user) {
-    return next(new ErrorResponse('Aucun utilisateur avec cet email', 404));
+    return next(new ErrorResponse("Aucun utilisateur avec cet email", 404));
   }
 
   // Obtenir le token de réinitialisation
@@ -159,7 +163,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   // Créer l'URL de réinitialisation
-  const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/resetpassword/${resetToken}`;
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/auth/resetpassword/${resetToken}`;
 
   // Dans une application réelle, vous enverriez un email avec ce lien
   // Pour ce projet, nous allons simplement renvoyer le token
@@ -168,8 +174,8 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     success: true,
     data: {
       resetToken,
-      resetUrl
-    }
+      resetUrl,
+    },
   });
 });
 
@@ -179,17 +185,17 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 exports.resetPassword = asyncHandler(async (req, res, next) => {
   // Obtenir le token hashé
   const resetPasswordToken = crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(req.params.resettoken)
-    .digest('hex');
+    .digest("hex");
 
   const user = await User.findOne({
     resetPasswordToken,
-    resetPasswordExpire: { $gt: Date.now() }
+    resetPasswordExpire: { $gt: Date.now() },
   });
 
   if (!user) {
-    return next(new ErrorResponse('Token invalide', 400));
+    return next(new ErrorResponse("Token invalide", 400));
   }
 
   // Définir le nouveau mot de passe
@@ -198,34 +204,5 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   user.resetPasswordExpire = undefined;
   await user.save();
 
-  sendTokenResponse(user, 200, res);
+  genererToken(user, 200, res);
 });
-
-// Fonction utilitaire pour envoyer la réponse avec token
-const sendTokenResponse = (user, statusCode, res) => {
-  // Créer le token
-  const token = user.getSignedJwtToken();
-
-  const options = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true
-  };
-
-  if (process.env.NODE_ENV === 'production') {
-    options.secure = true;
-  }
-
-  // Exclure le mot de passe de la réponse
-  user.password = undefined;
-
-  res
-    .status(statusCode)
-    .cookie('token', token, options)
-    .json({
-      success: true,
-      token,
-      data: user
-    });
-};
