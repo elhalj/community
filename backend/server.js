@@ -28,7 +28,12 @@ if (process.env.NODE_ENV === "development") {
 
 // Sécurité
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, // <-- Autoriser l'envoi de cookies
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({

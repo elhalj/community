@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
-const asyncHandler = require('./async');
-const ErrorResponse = require('../utils/errorResponse');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const asyncHandler = require("./async");
+const ErrorResponse = require("../utils/errorResponse");
+const User = require("../models/User");
 
 // Protéger les routes
 exports.protect = asyncHandler(async (req, res, next) => {
@@ -10,11 +10,11 @@ exports.protect = asyncHandler(async (req, res, next) => {
   // Vérifier si le token est dans les headers Authorization
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
+    req.headers.authorization.startsWith("Bearer")
   ) {
     // Extraire le token du header Bearer
-    token = req.headers.authorization.split(' ')[1];
-  } 
+    token = req.headers.authorization.split(" ")[1];
+  }
   // Vérifier si le token est dans les cookies
   else if (req.cookies.token) {
     token = req.cookies.token;
@@ -22,7 +22,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
   // Vérifier si le token existe
   if (!token) {
-    return next(new ErrorResponse('Non autorisé à accéder à cette route', 401));
+    return next(new ErrorResponse("Non autorisé à accéder à cette route", 401));
   }
 
   try {
@@ -34,7 +34,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
     next();
   } catch (err) {
-    return next(new ErrorResponse('Non autorisé à accéder à cette route', 401));
+    return next(new ErrorResponse("Non autorisé à accéder à cette route", 401));
   }
 });
 
