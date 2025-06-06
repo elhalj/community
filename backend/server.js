@@ -8,6 +8,7 @@ const { createClient } = require("redis");
 const connectDB = require("./src/config/db");
 const routerUser = require("./src/routes/auth");
 const routerCotisation = require("./src/routes/cotisations");
+const cookieParser = require('./src/middleware/cookieParser');
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -20,6 +21,7 @@ const app = express();
 
 // Middleware pour le parsing du body
 app.use(express.json());
+app.use(cookieParser());
 
 // Middleware pour les logs en développement
 if (process.env.NODE_ENV === "development") {

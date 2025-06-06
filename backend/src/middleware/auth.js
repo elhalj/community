@@ -16,7 +16,8 @@ exports.protect = asyncHandler(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   }
   // Vérifier si le token est dans les cookies
-  else if (req.cookies.token) {
+  else if (typeof req.cookies.token !== "undefined" && req.cookies.token !== null) {
+    // Extraire le token des cookies
     token = req.cookies.token;
   }
 
