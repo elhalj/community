@@ -28,11 +28,10 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
   try {
     // Vérifier le token
+    
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     // Ajouter l'utilisateur à la requête
-    req.user = await User.findById(decoded.id);
-
+    req.user = await User.findById(decoded.user.id);
     next();
   } catch (err) {
     return next(new ErrorResponse("Non autorisé à accéder à cette route", 401));
@@ -41,6 +40,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
 // Autoriser certains rôles
 exports.authorize = (...roles) => {
+  console.log('Les roles', roles);
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return next(

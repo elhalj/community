@@ -10,7 +10,8 @@ export const useAuth = () => {
   const login = useMutation({
     mutationFn: (credentials) => authService.login(credentials),
     onSuccess: (data) => {
-      storeLogin(data.data, data.token);
+      console.log(data);
+      storeLogin(data.user, data.token.token);
     },
   });
 
@@ -18,7 +19,7 @@ export const useAuth = () => {
   const register = useMutation({
     mutationFn: (userData) => authService.register(userData),
     onSuccess: (data) => {
-      storeLogin(data.data, data.token);
+      storeLogin(data.user, data.token.token);
     },
   });
 
