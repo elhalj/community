@@ -9,8 +9,6 @@ const CotisationDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { useCotisationById, updateCotisationStatus, deleteCotisation } = useCotisations();
-  const updateStatusMutation = updateCotisationStatus();
-  const deleteCotisationMutation = deleteCotisation();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
@@ -33,7 +31,7 @@ const CotisationDetail = () => {
   const handleStatusUpdate = async (newStatus) => {
     try {
       setIsUpdatingStatus(true);
-      await updateStatusMutation.mutateAsync({
+      await updateCotisationStatus.mutateAsync({
         id,
         statut: newStatus,
       });
@@ -50,7 +48,7 @@ const CotisationDetail = () => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette cotisation?')) {
       try {
         setIsDeleting(true);
-        await deleteCotisationMutation.mutateAsync(id);
+        await deleteCotisation.mutateAsync(id);
         toast.success('Cotisation supprimée avec succès');
         navigate('/cotisations');
       } catch (error) {
@@ -123,24 +121,24 @@ const CotisationDetail = () => {
                   <p className="text-sm text-gray-500">Période</p>
                   <p className="font-medium">{cotisation.mois} {cotisation.annee}</p>
                 </div>
-                
+
                 <div>
                   <p className="text-sm text-gray-500">Montant</p>
                   <p className="font-medium">{cotisation.montant.toLocaleString()} FCFA</p>
                 </div>
-                
+
                 <div>
                   <p className="text-sm text-gray-500">Statut</p>
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(cotisation.statut)}`}>
                     {cotisation.statut}
                   </span>
                 </div>
-                
+
                 <div>
                   <p className="text-sm text-gray-500">Méthode de paiement</p>
                   <p className="font-medium">{cotisation.methodePaiement}</p>
                 </div>
-                
+
                 {cotisation.referencePaiement && (
                   <div>
                     <p className="text-sm text-gray-500">Référence de paiement</p>
@@ -149,7 +147,7 @@ const CotisationDetail = () => {
                 )}
               </div>
             </div>
-            
+
             <div>
               <h2 className="text-xl font-semibold mb-4">Détails</h2>
               <div className="space-y-3">
@@ -161,24 +159,24 @@ const CotisationDetail = () => {
                     </p>
                   </div>
                 )}
-                
+
                 <div>
                   <p className="text-sm text-gray-500">Date de paiement</p>
                   <p className="font-medium">{formatDate(cotisation.datePaiement)}</p>
                 </div>
-                
+
                 <div>
                   <p className="text-sm text-gray-500">Date de création</p>
                   <p className="font-medium">{formatDate(cotisation.createdAt)}</p>
                 </div>
-                
+
                 {cotisation.updatedAt && cotisation.updatedAt !== cotisation.createdAt && (
                   <div>
                     <p className="text-sm text-gray-500">Dernière mise à jour</p>
                     <p className="font-medium">{formatDate(cotisation.updatedAt)}</p>
                   </div>
                 )}
-                
+
                 {cotisation.notes && (
                   <div>
                     <p className="text-sm text-gray-500">Notes</p>

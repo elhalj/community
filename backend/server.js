@@ -8,7 +8,9 @@ const { createClient } = require("redis");
 const connectDB = require("./src/config/db");
 const routerUser = require("./src/routes/auth");
 const routerCotisation = require("./src/routes/cotisations");
-const cookieParser = require('./src/middleware/cookieParser');
+const cookieParser = require("./src/middleware/cookieParser");
+const routerGroupe = require("./src/routes/groupes");
+const routerTransaction = require("./src/routes/transactions");
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -79,6 +81,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", routerUser);
 app.use("/api/cotisation", routerCotisation);
+app.use("api/groupes", routerGroupe);
+app.use("api/transactions", routerTransaction);
 
 // Définir le port
 const PORT = process.env.PORT || 5000;
