@@ -10,7 +10,6 @@ export const useAuth = () => {
   const login = useMutation({
     mutationFn: (credentials) => authService.login(credentials),
     onSuccess: (data) => {
-      console.log(data);
       storeLogin(data.user, data.token.token);
     },
   });
