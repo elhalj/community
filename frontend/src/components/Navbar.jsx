@@ -66,7 +66,7 @@ const Navbar = () => {
                 )}
                 <div className="relative group">
                   <button className="flex items-center hover:text-blue-200 transition-colors">
-                    {user?.nom || 'Mon compte'}
+                    {user?.name || 'Mon compte'}
                     <svg
                       className="w-4 h-4 ml-1"
                       fill="none"
