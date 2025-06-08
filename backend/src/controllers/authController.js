@@ -33,8 +33,8 @@ exports.register = asyncHandler(async (req, res, next) => {
     role: "membre", // Par défaut, tous les nouveaux utilisateurs sont des membres
   });
 
-  genererToken(user, 201);
-  res.status(201).json(user);
+  genererToken(user, 201, res);
+  // res.status(201).json(user);
 });
 
 // @desc    Connecter un utilisateur
@@ -67,8 +67,8 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("Identifiants invalides", 401));
   }
 
-  genererToken(user, 200);
-  res.status(200).json(user);
+  genererToken(user, 200, res);
+  // res.status(200).json(user);
 });
 
 // @desc    Déconnecter un utilisateur / effacer le cookie

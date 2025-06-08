@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import useAuthStore from '../store/authStore';
-import { useAuth } from '../hooks/useAuth';
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import useAuthStore from "../store/authStore";
+import { useAuth } from "../hooks/useAuth";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +20,9 @@ const Navbar = () => {
     <nav className="bg-blue-600 text-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-xl font-bold">SeguiKro</Link>
+          <Link to="/" className="text-xl font-bold">
+            SeguiKro
+          </Link>
 
           {/* Menu pour mobile */}
           <div className="md:hidden">
@@ -56,18 +58,40 @@ const Navbar = () => {
 
           {/* Menu pour desktop */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/" className="hover:text-blue-200 transition-colors">Accueil</Link>
+            <Link to="/" className="hover:text-blue-200 transition-colors">
+              Accueil
+            </Link>
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="hover:text-blue-200 transition-colors">Tableau de bord</Link>
-                <Link to="/cotisations" className="hover:text-blue-200 transition-colors">Cotisations</Link>
-                <Link to="/groupes" className="hover:text-blue-200 transition-colors">Groupes</Link>
-                {user?.role === 'admin' && (
-                  <Link to="/admin" className="hover:text-blue-200 transition-colors">Admin</Link>
+                <Link
+                  to="/dashboard"
+                  className="hover:text-blue-200 transition-colors"
+                >
+                  Tableau de bord
+                </Link>
+                <Link
+                  to="/cotisations"
+                  className="hover:text-blue-200 transition-colors"
+                >
+                  Cotisations
+                </Link>
+                <Link
+                  to="/groupes"
+                  className="hover:text-blue-200 transition-colors"
+                >
+                  Groupes
+                </Link>
+                {user?.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    className="hover:text-blue-200 transition-colors"
+                  >
+                    Admin
+                  </Link>
                 )}
                 <div className="relative group">
                   <button className="flex items-center hover:text-blue-200 transition-colors">
-                    {user?.user.nom || 'Mon compte'}
+                    {user?.nom || "Mon compte"}
                     <svg
                       className="w-4 h-4 ml-1"
                       fill="none"
@@ -101,8 +125,16 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/login" className="hover:text-blue-200 transition-colors">Connexion</Link>
-                <Link to="/register" className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-100 transition-colors">
+                <Link
+                  to="/login"
+                  className="hover:text-blue-200 transition-colors"
+                >
+                  Connexion
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-100 transition-colors"
+                >
                   Inscription
                 </Link>
               </>
@@ -113,26 +145,44 @@ const Navbar = () => {
         {/* Menu mobile */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-blue-500">
-            <Link to="/" className="block py-2 hover:text-blue-200 transition-colors">
+            <Link
+              to="/"
+              className="block py-2 hover:text-blue-200 transition-colors"
+            >
               Accueil
             </Link>
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="block py-2 hover:text-blue-200 transition-colors">
+                <Link
+                  to="/dashboard"
+                  className="block py-2 hover:text-blue-200 transition-colors"
+                >
                   Tableau de bord
                 </Link>
-                <Link to="/cotisations" className="block py-2 hover:text-blue-200 transition-colors">
+                <Link
+                  to="/cotisations"
+                  className="block py-2 hover:text-blue-200 transition-colors"
+                >
                   Cotisations
                 </Link>
-                <Link to="/groupes" className="block py-2 hover:text-blue-200 transition-colors">
+                <Link
+                  to="/groupes"
+                  className="block py-2 hover:text-blue-200 transition-colors"
+                >
                   Groupes
                 </Link>
-                {user?.role === 'admin' && (
-                  <Link to="/admin" className="block py-2 hover:text-blue-200 transition-colors">
+                {user?.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    className="block py-2 hover:text-blue-200 transition-colors"
+                  >
                     Admin
                   </Link>
                 )}
-                <Link to="/profile" className="block py-2 hover:text-blue-200 transition-colors">
+                <Link
+                  to="/profile"
+                  className="block py-2 hover:text-blue-200 transition-colors"
+                >
                   Mon profil
                 </Link>
                 <button
@@ -144,10 +194,16 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/login" className="block py-2 hover:text-blue-200 transition-colors">
+                <Link
+                  to="/login"
+                  className="block py-2 hover:text-blue-200 transition-colors"
+                >
                   Connexion
                 </Link>
-                <Link to="/register" className="block py-2 hover:text-blue-200 transition-colors">
+                <Link
+                  to="/register"
+                  className="block py-2 hover:text-blue-200 transition-colors"
+                >
                   Inscription
                 </Link>
               </>

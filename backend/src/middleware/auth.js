@@ -16,7 +16,10 @@ exports.protect = asyncHandler(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   }
   // Vérifier si le token est dans les cookies
-  else if (typeof req.cookies.token !== "undefined" && req.cookies.token !== null) {
+  else if (
+    typeof req.cookies.token !== "undefined" &&
+    req.cookies.token !== null
+  ) {
     // Extraire le token des cookies
     token = req.cookies.token;
   }
@@ -31,7 +34,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Ajouter l'utilisateur à la requête
-    req.user = await User.findById(decoded.id);
+    req.user = await User.findById(decoded.user.id);
 
     next();
   } catch (err) {

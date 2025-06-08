@@ -1,16 +1,22 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import authService from '../services/authService';
-import useAuthStore from '../store/authStore';
+import { useMutation, useQuery } from "@tanstack/react-query";
+import authService from "../services/authService";
+import useAuthStore from "../store/authStore";
 
 // Hook personnalisé pour gérer l'authentification avec React Query
 export const useAuth = () => {
-  const { login: storeLogin, logout: storeLogout, updateUser } = useAuthStore();
+  const {
+    login: storeLogin,
+    logout: storeLogout,
+    updateUser,
+    isAuthenticated,
+    user,
+  } = useAuthStore();
 
   // Connexion d'un utilisateur
   const login = useMutation({
     mutationFn: (credentials) => authService.login(credentials),
     onSuccess: (data) => {
-      storeLogin(data.data, data.token);
+      storeLogin(data.data);
     },
   });
 
@@ -18,7 +24,7 @@ export const useAuth = () => {
   const register = useMutation({
     mutationFn: (userData) => authService.register(userData),
     onSuccess: (data) => {
-      storeLogin(data.data, data.token);
+      storeLogin(data.data);
     },
   });
 
@@ -29,12 +35,13 @@ export const useAuth = () => {
 
   // Récupérer le profil de l'utilisateur
   const getProfile = useQuery({
-    queryKey: ['profile'],
+    queryKey: ["profile"],
     queryFn: () => authService.getProfile(),
     onSuccess: (data) => {
       updateUser(data.data);
+      useAuthStore.setState({ isAuthenticated: true });
     },
-    enabled: !!useAuthStore.getState().token, // Activer seulement si l'utilisateur est connecté
+    enabled: isAuthenticated, // Activer seulement si l'utilisateur est connecté
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 
@@ -58,7 +65,8 @@ export const useAuth = () => {
 
   // Réinitialiser le mot de passe
   const resetPassword = useMutation({
-    mutationFn: ({ token, password }) => authService.resetPassword(token, password),
+    mutationFn: ({ token, password }) =>
+      authService.resetPassword(token, password),
   });
 
   return {
@@ -70,5 +78,7 @@ export const useAuth = () => {
     updatePassword,
     forgotPassword,
     resetPassword,
+    isAuthenticated,
+    user,
   };
 };

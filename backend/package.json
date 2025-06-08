@@ -22,9 +22,10 @@
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.17.0",
     "mongoose": "^8.15.1",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.10",
-    "redis": "^5.1.1"
+    "redis": "^5.5.6"
   }
 }
